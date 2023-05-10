@@ -50,11 +50,15 @@ const int seconds30 = 30000;
 int score = 0;
 bool gameOn = false;
 bool finished = false;
-int cursorColumn = 0;
-int character = 0;
 unsigned long time_now = 0;
 int delayTime = 1000;
-String name = "";
+int cursorColumn = 0;
+int character = 0;
+char name[16] = {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '};
+char alphabet[37] = {' ', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 
+                    'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S',
+                    'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '1', '2', '3',
+                    '4', '5', '6', '7', '8', '9', '0'};
 
 //Setup function
 void setup() {
@@ -130,15 +134,7 @@ void startMenu() {
   lcd.blink();
   while (startButton.getStateRaw() != 0){
     int joystick = readJoystick();
-    Serial.println(joystick);
-    if (cancelButton.getStateRaw() == 0) {
-      lcd.clear();
-      lcd.setCursor(0, 0);
-      lcd.print("Press the green");
-      lcd.setCursor(0, 1);
-      lcd.print("button to start!");
-      return;
-    }
+
     switch (joystick) {
       case 2:
         lcd.noBlink();
@@ -247,7 +243,7 @@ void gamePlay() {
       digitalWrite(redLed3, HIGH);
       digitalWrite(redLed4, LOW);
       digitalWrite(redLed5, HIGH);
-      Serial.print(button4.getState());
+
       while(button4.getStateRaw() != 0) {
       }
 
@@ -287,7 +283,7 @@ void playGame(int duration) {
   lcd.print("Score: ");
   lcd.print(score);
   lcd.noBlink();
-  while(score < 15) {
+  while(score < 5) {
     gamePlay();
     if (score != currentScore) {
       currentScore = score;
@@ -311,38 +307,95 @@ void endGame() {
   lcd.display();
   lcd.clear();
   lcd.setCursor(0, 0);
-  lcd.print("Please Enter Name: ");
-  lcd.setCursor(0, 1);
+  lcd.print("Enter Name: ");
+  lcd.blink();
+
   while(startButton.getStateRaw() != 0) {
-  int joystick = readJoystick();
-    if (cancelButton.getStateRaw() == 0) {
-      lcd.clear();
-      lcd.setCursor(0, 0);
-      lcd.print("Press the green");
-      lcd.setCursor(0, 1);
-      lcd.print("button to start!");
-      return;
-    }
+    int joystick = readJoystick();
+
+    lcd.setCursor(cursorColumn, 1);
     switch (joystick) {
+      //up
       case 0:
-        
+        if (character < 36) {
+          time_now = millis();
+          character = character + 1;
+          lcd.print(alphabet[character]);
+          lcd.setCursor(cursorColumn, 1);
+          name[cursorColumn] = alphabet[character];
+          while (millis() < time_now + 500) {}
+        }
+        if (character == 36) {
+          time_now = millis();
+          character = 0;
+          lcd.print(alphabet[character]);
+          lcd.setCursor(cursorColumn, 1);
+          name[cursorColumn] = alphabet[character];
+          while (millis() < time_now + 500) {}
+
+
+        }
         break;
 
+      //down
       case 1:
-        
+        if (character > 0) {
+          time_now = millis();
+          character = character - 1;
+          lcd.print(alphabet[character]);
+          lcd.setCursor(cursorColumn, 1);
+          name[cursorColumn] = alphabet[character];
+          while (millis() < time_now + 500) {}
+        }
+        if (character == 0) {
+          time_now = millis();
+          character = 36;
+          lcd.print(alphabet[character]);
+          lcd.setCursor(cursorColumn, 1);
+          name[cursorColumn] = alphabet[character];
+          while (millis() < time_now + 500) {}
+        }
         break;
 
+      //right
       case 2:
-  
+        if (cursorColumn < 15) { 
+          time_now = millis();
+          cursorColumn = cursorColumn + 1;
+          lcd.setCursor(cursorColumn, 1);
+          while (millis() < time_now + 500) {}
+        }
+
         break;
       
+      //left
       case 3:
-      
+        if (cursorColumn > 0) {
+          time_now = millis();
+          cursorColumn = cursorColumn - 1;
+          lcd.setCursor(cursorColumn, 1);
+          while (millis() < time_now + 500) {}
+        }
+
+        break;
+
       default:
         break;
       }
   
   }
+  lcd.clear();
+  lcd.noBlink();
+  lcd.setCursor(0, 0);
+  lcd.print("Good Game :)");
+  for (int i = 0; i < 16; i++) {
+    lcd.setCursor(i, 1);
+    lcd.print(name[i]);
+  }
+  delay(5000);
+  finished = false;
+  duration15 = false;
+  duration30 = false;
 }
 
 //Main loop function
@@ -380,7 +433,9 @@ void loop() {
       lcd.setCursor(0, 0);
       lcd.print("30 SECONDS");
       countdownText();
-      // playGame(seconds30);
+      playGame(seconds30);
+      finished = true;
+      gameOn = false;
     }
 
     
