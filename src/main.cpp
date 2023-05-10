@@ -9,6 +9,7 @@ ezButton button3(36);
 ezButton button4(37);
 ezButton button5(38);
 ezButton startButton(40);
+ezButton cancelButton(41);
 
 //Green LED pins
 const int greenLed1 = 27;
@@ -42,6 +43,10 @@ const int joystickX = A6;
 int lastJoyRead;
 
 //Variables
+bool duration15 = false;
+bool duration30 = false;
+const int seconds15 = 15000;
+const int seconds30 = 30000;
 int score = 0;
 bool gameOn = false;
 bool finished = false;
@@ -76,6 +81,102 @@ void setup() {
   pinMode(29, OUTPUT);
   pinMode(30, OUTPUT);
   pinMode(31, OUTPUT);
+  Serial.println("SERIAL ON");
+}
+
+//This function is used to turn off all of the LEDs.
+void clearLeds() {
+  digitalWrite(greenLed1, LOW);
+  digitalWrite(greenLed2, LOW);
+  digitalWrite(greenLed3, LOW);
+  digitalWrite(greenLed4, LOW);
+  digitalWrite(greenLed5, LOW);
+  digitalWrite(redLed1, LOW);
+  digitalWrite(redLed2, LOW);
+  digitalWrite(redLed3, LOW);
+  digitalWrite(redLed4, LOW);
+  digitalWrite(redLed5, LOW);
+
+}
+
+//This function handles reading the analog input for the joystick
+int readJoystick() {
+  int output = none;
+  int xPosition = analogRead(joystickX);
+  int yPosition = analogRead(joystickY);
+  xPosition = map(xPosition, 0, 1023, 1023, 0);
+  yPosition = map(yPosition, 0, 1023, 1023, 0);
+
+  if (xPosition >= 900) {
+    output = right;
+  } else if (xPosition <= 100) {
+    output = left;
+  } else if (yPosition >= 900) {
+    output = up;
+  } else if (yPosition <= 100) {
+    output = down;
+  }
+  return output;
+}
+
+//This function lets the user pick between a game duration of 15 or 30 seconds.
+void startMenu() {
+  lcd.clear();
+  lcd.setCursor(0, 0);
+  lcd.print("Select Duration:");
+  lcd.setCursor(0,1);
+  lcd.print("15  30  Seconds");
+  lcd.setCursor(2, 1);
+  lcd.blink();
+  while (startButton.getStateRaw() != 0){
+    int joystick = readJoystick();
+    Serial.println(joystick);
+    if (cancelButton.getStateRaw() == 0) {
+      lcd.clear();
+      lcd.setCursor(0, 0);
+      lcd.print("Press the green");
+      lcd.setCursor(0, 1);
+      lcd.print("button to start!");
+      return;
+    }
+    switch (joystick) {
+      case 2:
+        lcd.noBlink();
+        lcd.setCursor(0, 1);
+        lcd.print("15  30< Seconds");
+        lcd.setCursor(6, 1);
+        lcd.blink();
+        duration15 = false;
+        duration30 = true;
+        break;
+      
+      case 3:
+        lcd.noBlink();
+        lcd.setCursor(0, 1);
+        lcd.print("15< 30  Seconds");
+        lcd.setCursor(2, 1);
+        lcd.blink();
+        duration15 = true;
+        duration30 = false;
+      
+      default:
+        break;
+      }
+  
+  }
+
+}
+
+void countdownText() {
+  lcd.setCursor(0, 1);
+  lcd.print("READY!");
+  delay(1000);
+  lcd.setCursor(0, 1);
+  lcd.print("SET!    ");
+  delay(1000);
+  lcd.setCursor(0, 1);
+  lcd.print("GO!!!");
+  delay(1000);
 }
 
 //This function handles all of the LEDs and buttons during the gameplay
@@ -96,7 +197,7 @@ void gamePlay() {
       digitalWrite(redLed4, HIGH);
       digitalWrite(redLed5, HIGH);
       
-      while(button1.getStateRaw() == 1) {
+      while(button1.getStateRaw() != 0) {
       }
 
       break;
@@ -113,7 +214,7 @@ void gamePlay() {
       digitalWrite(redLed4, HIGH);
       digitalWrite(redLed5, HIGH);
       
-      while(button2.getStateRaw() == 1) {
+      while(button2.getStateRaw() != 0) {
       }
 
       break;
@@ -174,102 +275,73 @@ void gamePlay() {
 
     break;
   }
+
+  score = score + 1;
 }
 
-//This function is used to turn off all of the LEDs.
-void clearLeds() {
-  digitalWrite(greenLed1, LOW);
-  digitalWrite(greenLed2, LOW);
-  digitalWrite(greenLed3, LOW);
-  digitalWrite(greenLed4, LOW);
-  digitalWrite(greenLed5, LOW);
-  digitalWrite(redLed1, LOW);
-  digitalWrite(redLed2, LOW);
-  digitalWrite(redLed3, LOW);
-  digitalWrite(redLed4, LOW);
-  digitalWrite(redLed5, LOW);
-
-}
-
-//This function handles reading the analog input for the joystick
-int readJoystick() {
-  int output = none;
-  int xPosition = analogRead(joystickX);
-  int yPosition = analogRead(joystickY);
-  xPosition = map(xPosition, 0, 1023, 1023, 0);
-  yPosition = map(yPosition, 0, 1023, 1023, 0);
-
-  if (xPosition >= 900) {
-    output = right;
-  } else if (xPosition <= 100) {
-    output = left;
-  } else if (yPosition >= 900) {
-    output = up;
-  } else if (yPosition <= 100) {
-    output = down;
-  }
-  return output;
-}
-
-//This function lets the user input their initials
-void initials() {
-  String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ "; 
-  int index = 0;
+void playGame(int duration) {
+  int currentScore = 0;
+  
   lcd.clear();
-  lcd.setCursor(0,0);
-  lcd.print("Input Name: ");
   lcd.setCursor(0, 1);
-  lcd.blink();
-  lcd.write(characters.indexOf(0));
-  lcd.setCursor(0, 1);
-
-  finished = false;
-
-  while (finished == false) {
-    time_now = millis();
-    int currentJoyRead = readJoystick();
-
-    if (currentJoyRead != lastJoyRead) {
-      lastJoyRead = currentJoyRead;
+  lcd.print("Score: ");
+  lcd.print(score);
+  lcd.noBlink();
+  while(score < 15) {
+    gamePlay();
+    if (score != currentScore) {
+      currentScore = score;
+      lcd.setCursor(7, 1);
+      lcd.print(score);
     }
+  }
+}
 
-    switch(currentJoyRead) {
-      case up:
-      if (index < 28) {
-        index += 1;
-        lcd.write(characters.indexOf(index));
-        lcd.setCursor(cursorColumn, 1);
-        while(millis() < time_now + delayTime){}
-      }
+void endGame() {
+  clearLeds();
+  lcd.noBlink();
+  lcd.setCursor(0, 0);
+  lcd.print("Good Job!");
+  lcd.setCursor(0, 1);
+  lcd.print("Final Score: ");
+  lcd.print(score);
+  delay(5000);
+  lcd.noDisplay();
+  delay(500);
+  lcd.display();
+  lcd.clear();
+  lcd.setCursor(0, 0);
+  lcd.print("Please Enter Name: ");
+  lcd.setCursor(0, 1);
+  while(startButton.getStateRaw() != 0) {
+  int joystick = readJoystick();
+    if (cancelButton.getStateRaw() == 0) {
+      lcd.clear();
+      lcd.setCursor(0, 0);
+      lcd.print("Press the green");
+      lcd.setCursor(0, 1);
+      lcd.print("button to start!");
+      return;
+    }
+    switch (joystick) {
+      case 0:
         
         break;
-      case down:
-      if (index > 0) {
-        index -= 1;
-        lcd.write(characters.indexOf(index));
-        lcd.setCursor(cursorColumn, 1);
-        while(millis() < time_now + delayTime){}
-      }
+
+      case 1:
         
         break;
-      case left:
-        if(cursorColumn > 0) {
-          cursorColumn = cursorColumn - 1;
-          lcd.setCursor(cursorColumn, 1);
-          while(millis() < time_now + delayTime){}
-        }
 
+      case 2:
+  
         break;
-      case right:
-        if (cursorColumn < 15) {
-          cursorColumn = cursorColumn + 1;
-          lcd.setCursor(cursorColumn, 1);
-          while(millis() < time_now + delayTime){}
-        }
-
+      
+      case 3:
+      
+      default:
         break;
-      default: break;
       }
+  
   }
 }
 
@@ -281,34 +353,45 @@ void loop() {
   button4.loop();
   button5.loop();
   startButton.loop();
+  cancelButton.loop();
 
-  if(startButton.getStateRaw() == 0){
+
+  if(startButton.getStateRaw() == 0) {
+    startMenu();
     gameOn = true;
     score = 0;
   }
 
   if (gameOn == true) {
-    score = 0;
-    while (score < 10) {
-      lcd.clear();  
-      lcd.setCursor(0,0);
-      lcd.print("Score: ");
-      lcd.setCursor(0,1);
-      lcd.print(score);
-      gamePlay();  
-      score = score + 1;
-
+    if (duration15 == true) {
+      lcd.clear();
+      lcd.noBlink();
+      lcd.setCursor(0, 0);
+      lcd.print("15 SECONDS");
+      countdownText();
+      playGame(seconds15);
+      finished = true;
+      gameOn = false;
     }
-    gameOn = false;
-    clearLeds();
-    lcd.clear();  
-    lcd.setCursor(0,0);
-    lcd.print("You win!");
-    time_now = millis();
-    while(millis() < time_now + 2000){}
-    initials();
+
+    if (duration30 == true) {
+      lcd.clear();
+      lcd.noBlink();
+      lcd.setCursor(0, 0);
+      lcd.print("30 SECONDS");
+      countdownText();
+      // playGame(seconds30);
+    }
+
+    
+  }
+
+  if (finished == true) {
+    endGame();
   }
 }
+  
+
 
 
 
