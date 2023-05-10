@@ -84,6 +84,101 @@ void setup() {
   Serial.println("SERIAL ON");
 }
 
+//This function is used to turn off all of the LEDs.
+void clearLeds() {
+  digitalWrite(greenLed1, LOW);
+  digitalWrite(greenLed2, LOW);
+  digitalWrite(greenLed3, LOW);
+  digitalWrite(greenLed4, LOW);
+  digitalWrite(greenLed5, LOW);
+  digitalWrite(redLed1, LOW);
+  digitalWrite(redLed2, LOW);
+  digitalWrite(redLed3, LOW);
+  digitalWrite(redLed4, LOW);
+  digitalWrite(redLed5, LOW);
+
+}
+
+//This function handles reading the analog input for the joystick
+int readJoystick() {
+  int output = none;
+  int xPosition = analogRead(joystickX);
+  int yPosition = analogRead(joystickY);
+  xPosition = map(xPosition, 0, 1023, 1023, 0);
+  yPosition = map(yPosition, 0, 1023, 1023, 0);
+
+  if (xPosition >= 900) {
+    output = right;
+  } else if (xPosition <= 100) {
+    output = left;
+  } else if (yPosition >= 900) {
+    output = up;
+  } else if (yPosition <= 100) {
+    output = down;
+  }
+  return output;
+}
+
+//This function lets the user pick between a game duration of 15 or 30 seconds.
+void startMenu() {
+  lcd.clear();
+  lcd.setCursor(0, 0);
+  lcd.print("Select Duration:");
+  lcd.setCursor(0,1);
+  lcd.print("15  30  Seconds");
+  lcd.setCursor(2, 1);
+  lcd.blink();
+  while (startButton.getStateRaw() != 0){
+    int joystick = readJoystick();
+    Serial.println(joystick);
+    if (cancelButton.getStateRaw() == 0) {
+      lcd.clear();
+      lcd.setCursor(0, 0);
+      lcd.print("Press the green");
+      lcd.setCursor(0, 1);
+      lcd.print("button to start!");
+      return;
+    }
+    switch (joystick) {
+      case 2:
+        lcd.noBlink();
+        lcd.setCursor(0, 1);
+        lcd.print("15  30< Seconds");
+        lcd.setCursor(6, 1);
+        lcd.blink();
+        duration15 = false;
+        duration30 = true;
+        break;
+      
+      case 3:
+        lcd.noBlink();
+        lcd.setCursor(0, 1);
+        lcd.print("15< 30  Seconds");
+        lcd.setCursor(2, 1);
+        lcd.blink();
+        duration15 = true;
+        duration30 = false;
+      
+      default:
+        break;
+      }
+  
+  }
+
+}
+
+void countdownText() {
+  lcd.setCursor(0, 1);
+  lcd.print("READY!");
+  delay(1000);
+  lcd.setCursor(0, 1);
+  lcd.print("SET!    ");
+  delay(1000);
+  lcd.setCursor(0, 1);
+  lcd.print("GO!!!");
+  delay(1000);
+}
+
 //This function handles all of the LEDs and buttons during the gameplay
 void gamePlay() {
 
@@ -184,52 +279,42 @@ void gamePlay() {
   score = score + 1;
 }
 
-//This function is used to turn off all of the LEDs.
-void clearLeds() {
-  digitalWrite(greenLed1, LOW);
-  digitalWrite(greenLed2, LOW);
-  digitalWrite(greenLed3, LOW);
-  digitalWrite(greenLed4, LOW);
-  digitalWrite(greenLed5, LOW);
-  digitalWrite(redLed1, LOW);
-  digitalWrite(redLed2, LOW);
-  digitalWrite(redLed3, LOW);
-  digitalWrite(redLed4, LOW);
-  digitalWrite(redLed5, LOW);
-
-}
-
-//This function handles reading the analog input for the joystick
-int readJoystick() {
-  int output = none;
-  int xPosition = analogRead(joystickX);
-  int yPosition = analogRead(joystickY);
-  xPosition = map(xPosition, 0, 1023, 1023, 0);
-  yPosition = map(yPosition, 0, 1023, 1023, 0);
-
-  if (xPosition >= 900) {
-    output = right;
-  } else if (xPosition <= 100) {
-    output = left;
-  } else if (yPosition >= 900) {
-    output = up;
-  } else if (yPosition <= 100) {
-    output = down;
+void playGame(int duration) {
+  int currentScore = 0;
+  
+  lcd.clear();
+  lcd.setCursor(0, 1);
+  lcd.print("Score: ");
+  lcd.print(score);
+  lcd.noBlink();
+  while(score < 15) {
+    gamePlay();
+    if (score != currentScore) {
+      currentScore = score;
+      lcd.setCursor(7, 1);
+      lcd.print(score);
+    }
   }
-  return output;
 }
 
-//This function lets the user pick between a game duration of 15 or 30 seconds.
-void startMenu() {
+void endGame() {
+  clearLeds();
+  lcd.noBlink();
+  lcd.setCursor(0, 0);
+  lcd.print("Good Job!");
+  lcd.setCursor(0, 1);
+  lcd.print("Final Score: ");
+  lcd.print(score);
+  delay(5000);
+  lcd.noDisplay();
+  delay(500);
+  lcd.display();
   lcd.clear();
   lcd.setCursor(0, 0);
-  lcd.print("Select Duration:");
-  lcd.setCursor(0,1);
-  lcd.print("15  30  Seconds");
-  lcd.setCursor(2, 1);
-  lcd.blink();
-  while (startButton.getStateRaw() != 0){
-    int joystick = readJoystick();
+  lcd.print("Please Enter Name: ");
+  lcd.setCursor(0, 1);
+  while(startButton.getStateRaw() != 0) {
+  int joystick = readJoystick();
     if (cancelButton.getStateRaw() == 0) {
       lcd.clear();
       lcd.setCursor(0, 0);
@@ -239,60 +324,24 @@ void startMenu() {
       return;
     }
     switch (joystick) {
+      case 0:
+        
+        break;
+
+      case 1:
+        
+        break;
+
       case 2:
-        lcd.noBlink();
-        lcd.setCursor(0, 1);
-        lcd.print("15  30< Seconds");
-        lcd.setCursor(6, 1);
-        lcd.blink();
-        duration15 = false;
-        duration30 = true;
+  
         break;
       
       case 3:
-        lcd.noBlink();
-        lcd.setCursor(0, 1);
-        lcd.print("15< 30  Seconds");
-        lcd.setCursor(2, 1);
-        lcd.blink();
-        duration15 = true;
-        duration30 = false;
       
       default:
         break;
       }
   
-  }
-
-}
-
-void countdownText() {
-  lcd.setCursor(0, 1);
-  lcd.print("READY!");
-  delay(1000);
-  lcd.setCursor(0, 1);
-  lcd.print("SET!    ");
-  delay(1000);
-  lcd.setCursor(0, 1);
-  lcd.print("GO!!!");
-  delay(1000);
-}
-
-void playGame(int duration) {
-  int timer = duration/1000;
-  int currentScore = 0;
-  
-  lcd.clear();
-  lcd.setCursor(0, 1);
-  lcd.print("Score: ");
-  lcd.noBlink();
-  while(millis() < time_now + duration) {
-    gamePlay();
-    if (score != currentScore) {
-      currentScore = score;
-      lcd.setCursor(7, 1);
-      lcd.print(score);
-    }
   }
 }
 
@@ -321,6 +370,8 @@ void loop() {
       lcd.print("15 SECONDS");
       countdownText();
       playGame(seconds15);
+      finished = true;
+      gameOn = false;
     }
 
     if (duration30 == true) {
@@ -332,32 +383,13 @@ void loop() {
       // playGame(seconds30);
     }
 
-    finished = true;
-  }
-
-  // if (finished == true) {
-  //   clearLeds();
-
-  //   lcd.clear();
-  //   lcd.noBlink();
-  //   lcd.setCursor(0, 0);
-  //   lcd.print("Good Job!");
-  //   lcd.setCursor(0, 1);
-  //   lcd.print("Final Score: ");
-  //   lcd.print(score);
-  //   lcd.setCursor(15, 1);
-  //   lcd.blink();
-  //   if (startButton.getStateRaw() == 0) {
-  //     lcd.clear();
-  //     lcd.noBlink();
-  //     lcd.setCursor(0, 0);
-  //     lcd.print("Play Again?");
-  //   }
-    // lcd.clear();
-    // lcd.setCursor(0, 0);
-    // lcd.print("Play Again?");
     
   }
+
+  if (finished == true) {
+    endGame();
+  }
+}
   
 
 
