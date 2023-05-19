@@ -85,7 +85,8 @@ void setup() {
   pinMode(29, OUTPUT);
   pinMode(30, OUTPUT);
   pinMode(31, OUTPUT);
-  Serial.println("SERIAL ON");
+
+  randomSeed(analogRead(0));
 }
 
 //This function is used to turn off all of the LEDs.
@@ -132,7 +133,7 @@ void startMenu() {
   lcd.print("15  30  Seconds");
   lcd.setCursor(2, 1);
   lcd.blink();
-  while (startButton.getStateRaw() != 0){
+  while (startButton.getStateRaw() != 0) {
     int joystick = readJoystick();
 
     switch (joystick) {
@@ -154,6 +155,7 @@ void startMenu() {
         lcd.blink();
         duration15 = true;
         duration30 = false;
+        break;
       
       default:
         break;
@@ -272,23 +274,45 @@ void gamePlay() {
     break;
   }
 
-  score = score + 1;
+  score += 1;
 }
 
-void playGame(int duration) {
+//This function handles actually playing the game.
+void playGame() {
   int currentScore = 0;
-  
+
   lcd.clear();
   lcd.setCursor(0, 1);
   lcd.print("Score: ");
   lcd.print(score);
+  lcd.setCursor(0, 0);
+  lcd.print("15 Seconds");
   lcd.noBlink();
-  while(score < 5) {
-    gamePlay();
-    if (score != currentScore) {
-      currentScore = score;
-      lcd.setCursor(7, 1);
-      lcd.print(score);
+
+  if (duration15 == true) {
+  lcd.setCursor(0, 0);
+  lcd.print("15 Seconds");
+    time_now = millis();
+    while (millis() < time_now + seconds15) {
+      gamePlay();
+      if (score != currentScore) {
+        currentScore = score;
+        lcd.setCursor(7, 1);
+        lcd.print(score);
+      }
+    }
+  }
+  if (duration30 == true) {
+  lcd.setCursor(0, 0);
+  lcd.print("30 Seconds");
+    time_now = millis();
+    while (millis() < time_now + seconds30) {
+      gamePlay();
+      if (score != currentScore) {
+        currentScore = score;
+        lcd.setCursor(7, 1);
+        lcd.print(score);
+      }
     }
   }
 }
@@ -422,7 +446,7 @@ void loop() {
       lcd.setCursor(0, 0);
       lcd.print("15 SECONDS");
       countdownText();
-      playGame(seconds15);
+      playGame();
       finished = true;
       gameOn = false;
     }
@@ -433,12 +457,10 @@ void loop() {
       lcd.setCursor(0, 0);
       lcd.print("30 SECONDS");
       countdownText();
-      playGame(seconds30);
+      playGame();
       finished = true;
       gameOn = false;
     }
-
-    
   }
 
   if (finished == true) {
