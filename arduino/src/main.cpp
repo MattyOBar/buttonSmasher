@@ -1,6 +1,8 @@
 #include <Arduino.h>
 #include <ezButton.h>
 #include <LiquidCrystal.h>
+#include <SPI.h>
+#include <Ethernet.h>
 
 //Button pins
 ezButton button1(34);
@@ -26,12 +28,12 @@ const int redLed4 = 25;
 const int redLed5 = 26;
 
 //LCD Pins
-const int rs = 52, en = 53, d4 = 46, d5 = 47, d6 = 48, d7 = 49;
+const int rs = 44, en = 45, d4 = 46, d5 = 47, d6 = 48, d7 = 49;
 LiquidCrystal lcd(rs, en, d4, d5, d6, d7);
 
 //Joystick Pins
-const int joystickY = A7;
-const int joystickX = A6;
+const int joystickY = A10;
+const int joystickX = A9;
 
 //Joystick values
 #define up  0
@@ -42,7 +44,17 @@ const int joystickX = A6;
 
 int lastJoyRead;
 
+// Networking
+byte mac[] = { 0xA8, 0x61, 0x0A, 0xAE, 0xA8, 0x18 }; // mac address on ethernet shield
+byte ip[] = { 10, 0, 0, 177 };  // arduino ip address
+byte server[] = {192, 168, 1, 210};
+char serverChar[] = "192.168.1.210"; // LAN IP address for host machine 
+char pathNameAdd[] = "/add/game";
+
+EthernetClient client;
+
 //Variables
+int duration = 0;
 bool duration15 = false;
 bool duration30 = false;
 const int seconds15 = 15000;
@@ -54,26 +66,29 @@ unsigned long time_now = 0;
 int delayTime = 1000;
 int cursorColumn = 0;
 int character = 0;
-char name[16] = {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '};
+char name[17] = {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '\0'};
 char alphabet[37] = {' ', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 
                     'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S',
                     'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '1', '2', '3',
                     '4', '5', '6', '7', '8', '9', '0'};
+int gameId = 0;
 
 //Setup function
 void setup() {
   Serial.begin(115200);
+  
+  lcd.begin(16, 2);
+  lcd.blink();
+  lcd.print("Loading...");
+  
+  Ethernet.begin(mac);
+  Serial.println(Ethernet.begin(mac));
   button1.setDebounceTime(50);
   button2.setDebounceTime(50);
   button3.setDebounceTime(50);
   button4.setDebounceTime(50);
   button5.setDebounceTime(50);
   startButton.setDebounceTime(50);
-
-  lcd.begin(16, 2);
-  lcd.print("Press the green");
-  lcd.setCursor(0, 1);
-  lcd.print("button to start!");
 
   pinMode(22, OUTPUT);
   pinMode(23, OUTPUT);  
@@ -87,6 +102,12 @@ void setup() {
   pinMode(31, OUTPUT);
 
   randomSeed(analogRead(0));
+
+  lcd.begin(16, 2);
+  lcd.print("Press the green");
+  lcd.setCursor(0, 1);
+  lcd.print("button to start!");
+
 }
 
 //This function is used to turn off all of the LEDs.
@@ -165,6 +186,7 @@ void startMenu() {
 
 }
 
+//This function displyas the countdown at the start of a game
 void countdownText() {
   lcd.setCursor(0, 1);
   lcd.print("READY!");
@@ -290,38 +312,40 @@ void playGame() {
   lcd.noBlink();
 
   if (duration15 == true) {
-  lcd.setCursor(0, 0);
-  lcd.print("15 Seconds");
-    time_now = millis();
-    while (millis() < time_now + seconds15) {
-      gamePlay();
-      if (score != currentScore) {
-        currentScore = score;
-        lcd.setCursor(7, 1);
-        lcd.print(score);
+    duration = 15;  
+    lcd.setCursor(0, 0);
+    lcd.print("15 Seconds");
+      time_now = millis();
+      while (millis() < time_now + seconds15) {
+        gamePlay();
+        if (score != currentScore) {
+          currentScore = score;
+          lcd.setCursor(7, 1);
+          lcd.print(score);
+        }
       }
     }
-  }
   if (duration30 == true) {
-  lcd.setCursor(0, 0);
-  lcd.print("30 Seconds");
-    time_now = millis();
-    while (millis() < time_now + seconds30) {
-      gamePlay();
-      if (score != currentScore) {
-        currentScore = score;
-        lcd.setCursor(7, 1);
-        lcd.print(score);
+    duration = 30;
+    lcd.setCursor(0, 0);
+    lcd.print("30 Seconds");
+      time_now = millis();
+      while (millis() < time_now + seconds30) {
+        gamePlay();
+        if (score != currentScore) {
+          currentScore = score;
+          lcd.setCursor(7, 1);
+          lcd.print(score);
+        }
       }
     }
-  }
 }
 
 void endGame() {
   clearLeds();
   lcd.noBlink();
   lcd.setCursor(0, 0);
-  lcd.print("Good Job!");
+  lcd.print("Good Job!     ");
   lcd.setCursor(0, 1);
   lcd.print("Final Score: ");
   lcd.print(score);
@@ -416,10 +440,40 @@ void endGame() {
     lcd.setCursor(i, 1);
     lcd.print(name[i]);
   }
+
   delay(5000);
   finished = false;
   duration15 = false;
   duration30 = false;
+}
+
+void postScoresInFlask() {
+  gameId += 1;  
+
+  String dataToPost = String("gameId=") + String(gameId) + String("&duration=") + 
+  String(duration) + String("&score=") + String(score) + String("&name=") + 
+  String(name);
+
+  Serial.println("Connecting...");
+
+  if (client.connect(server, 5000)) {
+    Serial.println("connected");
+    Serial.println(dataToPost);
+    client.println("POST " + String(pathNameAdd) + " HTTP/1.1");
+    client.println("Host: " + String(serverChar));
+    client.println("User-Agent: Arduino/1.0");
+    client.println("Connection: close");
+    client.println("Content-Type: application/x-www-form-urlencoded;");
+    client.print("Content-Length: ");
+    client.println(dataToPost.length());
+    client.println();
+    client.println(dataToPost);
+    
+    
+  } else {
+    Serial.println("connection failed");
+    Serial.println(client.connect(server, 5000));
+  }
 }
 
 //Main loop function
@@ -465,6 +519,7 @@ void loop() {
 
   if (finished == true) {
     endGame();
+    postScoresInFlask();
   }
 }
   
