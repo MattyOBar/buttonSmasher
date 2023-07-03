@@ -1,4 +1,4 @@
-from flask import Flask, request
+from flask import Flask, render_template, request
 from redis import Redis
 
 app = Flask(__name__)
@@ -14,8 +14,6 @@ def add_score():
     duration = request.form.get('duration')
     score = request.form['score']
     name = request.form['name']
-    print(gameId)
-    print(duration)
     # # key is game_id
     # # duration, score, and name stored in game_id key
     # # can be read with redis.hget(key, "duration") etc.
@@ -24,7 +22,7 @@ def add_score():
     redis.hset(gameId, key="name", value=name)
    
    # return success or user
-    return "OK"
+    return f"gameId = {gameId}, duration = {duration}, score = {score}, name = {name}"
 
 # create route for getting a specific game score
 # get gameId from request args request.args
@@ -38,6 +36,14 @@ def get_score():
     score = redis.hget(gameId, "score")
     name = redis.hget(gameId, "name")
     return f"{duration}, {score}, {name}"
+
+@app.route('/')
+def loadHome():
+    return render_template('home.html')
+
+@app.route('/about/')
+def loadAbout():
+    return render_template('about.html')
 
 if __name__ == '__main__':
    app.run(host='0.0.0.0', debug=True)

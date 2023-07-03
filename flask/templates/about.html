@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>About ButtonSmasher</title>
+    <link rel="stylesheet" >
+</head>
+
+<body>
+    <header>
+        <div class="head">
+            <h1 class="name">ButtonSmasher</h1>
+            <strong><nav>
+                <ul class="menu">
+                    <li><a href="{{ url_for('loadHome') }}">Home</a></li>
+                    <li><a href="{{ url_for('loadAbout') }}">About</a></li>
+                </ul>
+            </nav></strong>
+        </div>
+        </div>
+
+    </header>
+    <div class="about">
+        <h3>About ButtonSmasher!</h3>
+        <p>ButtonSmasher is a fun product developed to help train your reflexes.  The user, simply starts up the device, selects between a 15 or 30 second duration, and then goes about trying to smash as many buttons as they can in the alloted time limit.  Then the user inputs their name, and if the device is connected to the LAN the device uploads the score to a localized database and front end.  The player can then view their scores from their session via a simple frontend.</p>
+        <p> </p>
+        <p>ButtonSmash is based around an Arduino Mega 2560, using an Arduino Ethernet Shield to for LAN connectivity.  The database and frontend are hosted in 2 Docker containers, running Redis and Flask.  </p>
+    </div>
+</body>
+</html>
