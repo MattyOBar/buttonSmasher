@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Smash That Dang Button!</title>
+    <link rel="stylesheet" >
+</head>
+
+<body>
+    <header>
+        <div class="head">
+            <h1 class="name">ButtonSmasher</h1>
+            <strong><nav>
+                <ul class="menu">
+                    <li><a href="{{ url_for('loadHome') }}">Home</a></li>
+                    <li><a href="{{ url_for('loadAbout') }}">About</a></li>
+                </ul>
+            </nav></strong>
+        </div>
+
+    </header>
+    <div class="scores">
+        <h3>15 Second Scores</h3>
+        <h3>30 Second Scores</h3>
+    </div>
+</body>
+</html>
