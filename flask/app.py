@@ -37,6 +37,25 @@ def get_score():
     name = redis.hget(gameId, "name")
     return f"{duration}, {score}, {name}"
 
+# create route for API
+# get number of keys in redis database
+# use number of keys to identify the ids
+
+@app.route('/get/15', methods=['GET'])
+def get_ids_duration_15():
+    duration_15_ids = []
+    num_of_keys = str(redis.dbsize())
+    i = 0
+    for i in range(int(num_of_keys)):
+        duration = redis.hget(i, "duration")
+        if duration == str(15): 
+            duration_15_ids.append(i)
+    # duration = redis.hget(2, "duration")
+    # return duration
+        i = i + 1
+    # return num_of_keys
+    return duration_15_ids
+
 @app.route('/')
 def loadHome():
     return render_template('home.html')
