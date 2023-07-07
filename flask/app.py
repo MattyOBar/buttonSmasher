@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request
 from redis import Redis
+from operator import itemgetter
 
 app = Flask(__name__)
 
@@ -39,30 +40,72 @@ def get_score():
 
 # create route for API
 # get number of keys in redis database
-# use number of keys to identify the ids
+# use number of keys to know how many keys to iterate through keys with a duration of 15
+# iterate through the ids and pull the score/name out into a nested list
+# sort the list of score/names in descending order by score.
+# return the sorted list
 
 @app.route('/get/15', methods=['GET'])
 def get_ids_duration_15():
     duration_15_ids = []
+    scores_and_names_list = []
+    
     num_of_keys = str(redis.dbsize())
-    i = 0
+    
     for i in range(int(num_of_keys)):
         duration = redis.hget(i, "duration")
         if duration == str(15): 
             duration_15_ids.append(i)
-    # duration = redis.hget(2, "duration")
-    # return duration
-        i = i + 1
-    # return num_of_keys
-    return duration_15_ids
+            
+    for k in range(len(duration_15_ids)):
+        score = redis.hget(duration_15_ids[k], "score")
+        name = redis.hget(duration_15_ids[k], "name")
+        newList = []
+        newList = [score, name]
+        scores_and_names_list.append(newList)
+    
+    sorted_scores_and_names_list = sort_list(scores_and_names_list)
+    
+    return sorted_scores_and_names_list
 
+@app.route('/get/30', methods=['GET'])
+def get_ids_duration_30():
+    duration_30_ids = []
+    scores_and_names_list = []
+    
+    num_of_keys = str(redis.dbsize())
+    
+    for i in range(int(num_of_keys)):
+        duration = redis.hget(i, "duration")
+        if duration == str(30): 
+            duration_30_ids.append(i)
+            
+    for k in range(len(duration_30_ids)):
+        score = redis.hget(duration_30_ids[k], "score")
+        name = redis.hget(duration_30_ids[k], "name")
+        newList = []
+        newList = [score, name]
+        scores_and_names_list.append(newList)
+    
+    sorted_scores_and_names_list = sort_list(scores_and_names_list)
+    
+    return sorted_scores_and_names_list
+
+# @app.route('/get/NameAndScore/', methods=['GET'])
+# def get_name_and_score(gameId):
+    
 @app.route('/')
-def loadHome():
+def load_home():
     return render_template('home.html')
 
 @app.route('/about/')
-def loadAbout():
+def load_about():
     return render_template('about.html')
+
+# this is a helper function, used to sort the score/name key/values in descending order
+def sort_list(lst):
+    sorted_lst = sorted(lst, key=lambda x: (int(x[0]), x[1]), reverse=True)
+    return sorted_lst
 
 if __name__ == '__main__':
    app.run(host='0.0.0.0', debug=True)
