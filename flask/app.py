@@ -1,6 +1,7 @@
+
 from flask import Flask, render_template, request
 from redis import Redis
-from operator import itemgetter
+
 
 app = Flask(__name__)
 
@@ -64,6 +65,9 @@ def get_ids_duration_15():
         newList = [score, name]
         scores_and_names_list.append(newList)
     
+    if (len(scores_and_names_list) == 0):
+        return "Scores are empty.  Please play a game."
+    
     sorted_scores_and_names_list = sort_list(scores_and_names_list)
     
     return sorted_scores_and_names_list
@@ -86,6 +90,9 @@ def get_ids_duration_30():
         newList = []
         newList = [score, name]
         scores_and_names_list.append(newList)
+    
+    if (len(scores_and_names_list) == 0):
+        return "Scores are empty.  Please play a game."
     
     sorted_scores_and_names_list = sort_list(scores_and_names_list)
     
