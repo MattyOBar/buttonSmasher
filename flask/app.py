@@ -68,9 +68,9 @@ def get_ids_duration_15():
     if (len(scores_and_names_list) == 0):
         return "Scores are empty.  Please play a game."
     
-    sorted_scores_and_names_list = sort_list(scores_and_names_list)
+    sorted_scores_and_names_list_15 = sort_list(scores_and_names_list)
     
-    return sorted_scores_and_names_list
+    return sorted_scores_and_names_list_15
 
 @app.route('/get/30', methods=['GET'])
 def get_ids_duration_30():
@@ -92,27 +92,24 @@ def get_ids_duration_30():
         scores_and_names_list.append(newList)
     
     if (len(scores_and_names_list) == 0):
-        return "Scores are empty.  Please play a game."
+        return str("Scores are empty.  Please play a game.")
     
-    sorted_scores_and_names_list = sort_list(scores_and_names_list)
+    sorted_scores_and_names_list_30 = sort_list(scores_and_names_list)
     
-    return sorted_scores_and_names_list
-
-# @app.route('/get/NameAndScore/', methods=['GET'])
-# def get_name_and_score(gameId):
+    return sorted_scores_and_names_list_30
     
 @app.route('/')
-def load_home():
-    return render_template('home.html')
+def load_home(list=None):
+    return render_template('home.html', list=get_ids_duration_15())
 
 @app.route('/about/')
 def load_about():
     return render_template('about.html')
 
 # this is a helper function, used to sort the score/name key/values in descending order
-def sort_list(lst):
-    sorted_lst = sorted(lst, key=lambda x: (int(x[0]), x[1]), reverse=True)
-    return sorted_lst
+def sort_list(list):
+    sorted_list = sorted(list, key=lambda x: (int(x[0]), x[1]), reverse=True)
+    return sorted_list
 
 if __name__ == '__main__':
    app.run(host='0.0.0.0', debug=True)
