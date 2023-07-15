@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>Smash That Dang Button!</title>
     <link rel="stylesheet" >
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
 </head>
 
 <body>
@@ -22,8 +23,10 @@
     <div class="scores">
         <h3>15 Second Scores</h3>
         <ul class="15_scores_list">
-            {% for l in list %}
+            {% for li in list %}
+                {% for l in li %}
                 <li>{{l}}</li>
+                {% endfor %}
             {% endfor %}
         </ul>
         <h3>30 Second Scores</h3>
