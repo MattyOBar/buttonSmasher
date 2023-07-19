@@ -5,17 +5,17 @@
     <title>Smash That Dang Button!</title>
     <link rel="stylesheet" >
     <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    {{ bootstrap.load_css() }}
 </head>
 
 <body>
+    {{ bootstrap.load_js() }}
     <header>
         <div class="head">
             <h1 class="name">ButtonSmasher</h1>
-            <strong><nav>
-                <ul class="menu">
-                    <li><a href="{{ url_for('load_home') }}">Home</a></li>
-                    <li><a href="{{ url_for('load_about') }}">About</a></li>
-                </ul>
+            <strong><nav class="nav">
+                    <p><a href="{{ url_for('load_home') }}">Home</a>    <a href="{{ url_for('load_about') }}">About</a></p>
+                    <p></p>
             </nav></strong>
         </div>
 
@@ -23,13 +23,27 @@
     <div class="scores">
         <h3>15 Second Scores</h3>
         <ul class="15_scores_list">
-            {% for li in list %}
-                {% for l in li %}
-                <li>{{l}}</li>
+            {% if list15|length == 0 %}
+                <p> There are no scores for this duration.  Please play a round. </p>
+            {% else %}
+                {% for li in list15 %}                
+                    <li>{{li}}</li>
                 {% endfor %}
-            {% endfor %}
+            {% endif %}
         </ul>
+
         <h3>30 Second Scores</h3>
+        <ul class="30_scores_list">
+            {% if list30|length == 0 %}
+                <p> There are no scores for this duration.  Please play a round. </p>
+            {% else %}
+                {% for li in list30 %}                
+                    <li>{{li}}</li>
+                {% endfor %}
+            {% endif %}
+        </ul>
+        <a href="{{ url_for('load_home') }}"><button>Refresh</button></a>
+
     </div>
 </body>
 </html>

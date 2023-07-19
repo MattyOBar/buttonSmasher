@@ -1,4 +1,3 @@
 docker compose down
-docker build --tag whackamole . 
-docker compose up -d
+docker compose up --build -d
 docker logs flask -f

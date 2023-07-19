@@ -1,9 +1,10 @@
-
 from flask import Flask, render_template, request
 from redis import Redis
-
+from flask_bootstrap import Bootstrap5
 
 app = Flask(__name__)
+
+bootstrap = Bootstrap5(app)
 
 # define db connection
 redis = Redis(host='redis', port=6379, decode_responses=True)
@@ -65,9 +66,6 @@ def get_ids_duration_15():
         newList = [score, name]
         scores_and_names_list.append(newList)
     
-    if (len(scores_and_names_list) == 0):
-        return "Scores are empty.  Please play a game."
-    
     sorted_scores_and_names_list_15 = sort_list(scores_and_names_list)
     
     return sorted_scores_and_names_list_15
@@ -91,16 +89,13 @@ def get_ids_duration_30():
         newList = [score, name]
         scores_and_names_list.append(newList)
     
-    if (len(scores_and_names_list) == 0):
-        return str("Scores are empty.  Please play a game.")
-    
     sorted_scores_and_names_list_30 = sort_list(scores_and_names_list)
     
     return sorted_scores_and_names_list_30
     
 @app.route('/')
-def load_home(list=None):
-    return render_template('home.html', list=get_ids_duration_15())
+def load_home():
+    return render_template('home.html', list15=get_ids_duration_15(), list30=get_ids_duration_30())
 
 @app.route('/about/')
 def load_about():
