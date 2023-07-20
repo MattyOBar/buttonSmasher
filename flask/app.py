@@ -51,6 +51,7 @@ def get_score():
 def get_ids_duration_15():
     duration_15_ids = []
     scores_and_names_list = []
+    final_list_return = []
     
     num_of_keys = str(redis.dbsize())
     
@@ -59,21 +60,26 @@ def get_ids_duration_15():
         if duration == str(15): 
             duration_15_ids.append(i)
             
-    for k in range(len(duration_15_ids)):
-        score = redis.hget(duration_15_ids[k], "score")
-        name = redis.hget(duration_15_ids[k], "name")
+    for j in range(len(duration_15_ids)):
+        score = redis.hget(duration_15_ids[j], "score")
+        name = redis.hget(duration_15_ids[j], "name")
         newList = []
         newList = [score, name]
         scores_and_names_list.append(newList)
     
-    sorted_scores_and_names_list_15 = sort_list(scores_and_names_list)
+    sorted_scores_and_names_list = sort_list(scores_and_names_list)
     
-    return sorted_scores_and_names_list_15
+    for k in range(len(sorted_scores_and_names_list)):    
+        savethis = str(sorted_scores_and_names_list[k][0]) + " - " + str(sorted_scores_and_names_list[k][1])
+        final_list_return.append(savethis)
+
+    return final_list_return
 
 @app.route('/get/30', methods=['GET'])
 def get_ids_duration_30():
     duration_30_ids = []
     scores_and_names_list = []
+    final_list_return = []
     
     num_of_keys = str(redis.dbsize())
     
@@ -89,9 +95,12 @@ def get_ids_duration_30():
         newList = [score, name]
         scores_and_names_list.append(newList)
     
-    sorted_scores_and_names_list_30 = sort_list(scores_and_names_list)
-    
-    return sorted_scores_and_names_list_30
+    sorted_scores_and_names_list = sort_list(scores_and_names_list)
+    for k in range(len(sorted_scores_and_names_list)):    
+        savethis = str(sorted_scores_and_names_list[k][0]) + " - " + str(sorted_scores_and_names_list[k][1])
+        final_list_return.append(savethis)
+
+    return final_list_return
     
 @app.route('/')
 def load_home():

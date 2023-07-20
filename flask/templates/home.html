@@ -12,6 +12,7 @@
     {{ bootstrap.load_js() }}
     <header>
         <div class="head">
+            <img src="{{ url_for('static', filename='home_img.png') }}" alt="Return Home"></img>
             <h1 class="name">ButtonSmasher</h1>
             <strong><nav class="nav">
                     <p><a href="{{ url_for('load_home') }}">Home</a>    <a href="{{ url_for('load_about') }}">About</a></p>
@@ -26,8 +27,8 @@
             {% if list15|length == 0 %}
                 <p> There are no scores for this duration.  Please play a round. </p>
             {% else %}
-                {% for li in list15 %}                
-                    <li>{{li}}</li>
+                {% for li in list15 %}  
+                    <li>{{li}}</li>      
                 {% endfor %}
             {% endif %}
         </ul>
