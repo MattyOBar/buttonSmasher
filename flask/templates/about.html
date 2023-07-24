@@ -1,30 +1,51 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+ {% block head %}
     <meta charset="UTF-8">
+
+    {% block styles %}
+        {{ bootstrap.load_css() }}
+    {% endblock %}
+
     <title>About ButtonSmasher</title>
+
     <link rel="stylesheet" >
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    {% endblock %}
 </head>
 
 <body>
+    <div style="background-image: linear-gradient(to right bottom, rgba(255,0,0,1), rgba(0,255,0,1))">
+    {% block content %}
     <header>
-        <div class="head">
-            <h1 class="name">ButtonSmasher</h1>
-            <strong><nav>
-                <ul class="menu">
-                    <li><a href="{{ url_for('load_home') }}">Home</a></li>
-                    <li><a href="{{ url_for('load_about') }}">About</a></li>
-                </ul>
-            </nav></strong>
-        </div>
+        <div><br>
+            <div class="navbar">
+                <div class="col-sm-1.5">
+                    <img src="{{ url_for('static', filename='home_img.png') }}" alt="Return Home" width="75" height="75"></img>
+                </div>
+                
+                <div class="col-sm-8">
+                    <h1 class="name">ButtonSmasher</h1>
+                </div>
+
+                <div class="col-sm">
+                    <strong><nav class="nav">
+                        <p><a href="{{ url_for('load_home') }}">Home</a> <a href="{{ url_for('load_about') }}">About</a></p>
+                    </nav></strong>
+                </div>
+            </div>
         </div>
 
     </header>
-    <div class="about">
+
+    <div class="container">
         <h3>About ButtonSmasher!</h3>
         <p>ButtonSmasher is a fun product developed to help train your reflexes.  The user, simply starts up the device, selects between a 15 or 30 second duration, and then goes about trying to smash as many buttons as they can in the alloted time limit.  Then the user inputs their name, and if the device is connected to the LAN the device uploads the score to a localized database and front end.  The player can then view their scores from their session via a simple frontend.</p>
         <p> </p>
         <p>ButtonSmash is based around an Arduino Mega 2560, using an Arduino Ethernet Shield to for LAN connectivity.  The database and frontend are hosted in 2 Docker containers, running Redis and Flask.  </p>
     </div>
+</div>
+    {% endblock %}
 </body>
 </html>

@@ -1,3 +1,5 @@
+#Use this to populate redis with data for debugging purposes
+
 curl -X POST http://localhost:5000/add/game -F gameId=0 -F duration=15 -F score=6 -F name=MattyBoi
 curl -X POST http://localhost:5000/add/game -F gameId=1 -F duration=15 -F score=69 -F name=Matty  
 curl -X POST http://localhost:5000/add/game -F gameId=2 -F duration=30 -F score=32 -F name=TRASH  

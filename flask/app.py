@@ -1,10 +1,10 @@
 from flask import Flask, render_template, request
 from redis import Redis
-from flask_bootstrap import Bootstrap5
+from flask_bootstrap import Bootstrap4
 
 app = Flask(__name__)
 
-bootstrap = Bootstrap5(app)
+bootstrap = Bootstrap4(app)
 
 # define db connection
 redis = Redis(host='redis', port=6379, decode_responses=True)
@@ -14,9 +14,13 @@ def add_score():
     # # store data from the post request in variables
     # print(request)
     gameId = request.form.get('gameId')
+    app.logger.info(gameId)
     duration = request.form.get('duration')
+    app.logger.info(duration)
     score = request.form['score']
+    app.logger.info(score)
     name = request.form['name']
+    app.logger.info(name)
     # # key is game_id
     # # duration, score, and name stored in game_id key
     # # can be read with redis.hget(key, "duration") etc.

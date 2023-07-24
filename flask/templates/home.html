@@ -1,27 +1,46 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    {% block head %}
     <meta charset="UTF-8">
+
+    {% block styles %}
+        {{ bootstrap.load_css() }}
+    {% endblock %}
+
     <title>Smash That Dang Button!</title>
+
     <link rel="stylesheet" >
     <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
-    {{ bootstrap.load_css() }}
+    {% endblock %}
 </head>
 
 <body>
-    {{ bootstrap.load_js() }}
+    {% block content %}
+    <div style="background-image: linear-gradient(to right bottom, rgba(255,0,0,1), rgba(0,255,0,1))" height="100%">
     <header>
-        <div class="head">
-            <img src="{{ url_for('static', filename='home_img.png') }}" alt="Return Home"></img>
-            <h1 class="name">ButtonSmasher</h1>
-            <strong><nav class="nav">
-                    <p><a href="{{ url_for('load_home') }}">Home</a>    <a href="{{ url_for('load_about') }}">About</a></p>
-                    <p></p>
-            </nav></strong>
+        <div><br>
+            <div class="navbar">
+                <div class="col-sm-1.5">
+                    <img src="{{ url_for('static', filename='home_img.png') }}" alt="Return Home" width="75" height="75"></img>
+                </div>
+                
+                <div class="col-sm-8">
+                    <h1 class="name">ButtonSmasher</h1>
+                </div>
+
+                <div class="col-sm">
+                    <strong><nav class="nav">
+                        <p><a href="{{ url_for('load_home') }}">Home</a> <a href="{{ url_for('load_about') }}">About</a></p>
+                    </nav></strong>
+                </div>
+            </div>
         </div>
 
     </header>
-    <div class="scores">
+    
+    
+    <div class="container">
         <h3>15 Second Scores</h3>
         <ul class="15_scores_list">
             {% if list15|length == 0 %}
@@ -32,7 +51,8 @@
                 {% endfor %}
             {% endif %}
         </ul>
-
+    </div>
+    <div class="container">
         <h3>30 Second Scores</h3>
         <ul class="30_scores_list">
             {% if list30|length == 0 %}
@@ -43,8 +63,25 @@
                 {% endfor %}
             {% endif %}
         </ul>
+    </div>
+    <div class="container">
         <a href="{{ url_for('load_home') }}"><button>Refresh</button></a>
+    </div>
+    <div>
+        <p> 
+
+
+
+
+
+
+
+
+
+        </p>
+    </div>
 
     </div>
+    {% endblock %}
 </body>
 </html>
