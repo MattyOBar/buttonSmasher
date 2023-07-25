@@ -28,7 +28,7 @@ const int redLed4 = 25;
 const int redLed5 = 26;
 
 //LCD Pins
-const int rs = 44, en = 45, d4 = 46, d5 = 47, d6 = 48, d7 = 49;
+const int rs = 42, en = 43, d4 = 44, d5 = 45, d6 = 46, d7 = 47;
 LiquidCrystal lcd(rs, en, d4, d5, d6, d7);
 
 //Joystick Pins
@@ -47,8 +47,8 @@ int lastJoyRead;
 // Networking
 byte mac[] = { 0xA8, 0x61, 0x0A, 0xAE, 0xA8, 0x18 }; // mac address on ethernet shield
 byte ip[] = { 10, 0, 0, 177 };  // arduino ip address
-byte server[] = {192, 168, 1, 210};
-char serverChar[] = "192.168.1.210"; // LAN IP address for host machine 
+byte server[] = {10, 0, 0, 9};
+char serverChar[] = "10.0.0.9"; // LAN IP address for host machine 
 char pathNameAdd[] = "/add/game";
 
 EthernetClient client;
@@ -432,6 +432,8 @@ void endGame() {
       }
   
   }
+  cursorColumn = 0;
+  character = 0;
   lcd.clear();
   lcd.noBlink();
   lcd.setCursor(0, 0);

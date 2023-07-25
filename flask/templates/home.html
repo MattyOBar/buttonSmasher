@@ -1,27 +1,33 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Smash That Dang Button!</title>
-    <link rel="stylesheet" >
-</head>
+{% extends "base.html" %}
+{% block title %} Smash That Dang Button!{% endblock %}
+{% block content %}
+<div class="container">
+    <h3>15 Second Scores</h3>
+    <ul class="15_scores_list">
+        {% if list15|length == 0 %}
+            <p> There are no scores for this duration.  Please play a round. </p>
+        {% else %}
+            {% for li in list15 %}  
+                <li>{{li}}</li>      
+            {% endfor %}
+        {% endif %}
+    </ul>
+</div>
 
-<body>
-    <header>
-        <div class="head">
-            <h1 class="name">ButtonSmasher</h1>
-            <strong><nav>
-                <ul class="menu">
-                    <li><a href="{{ url_for('loadHome') }}">Home</a></li>
-                    <li><a href="{{ url_for('loadAbout') }}">About</a></li>
-                </ul>
-            </nav></strong>
-        </div>
+<div class="container">
+    <h3>30 Second Scores</h3>
+    <ul class="30_scores_list">
+        {% if list30|length == 0 %}
+            <p> There are no scores for this duration.  Please play a round. </p>
+        {% else %}
+            {% for li in list30 %}                
+                <li>{{li}}</li>
+            {% endfor %}
+        {% endif %}
+    </ul>
+</div>
 
-    </header>
-    <div class="scores">
-        <h3>15 Second Scores</h3>
-        <h3>30 Second Scores</h3>
-    </div>
-</body>
-</html>
+<div class="container">
+    <a href="{{ url_for('load_home') }}"><button>Refresh</button></a>
+</div>
+{% endblock %}
