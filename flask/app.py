@@ -59,7 +59,7 @@ def get_ids_duration_15():
     
     num_of_keys = str(redis.dbsize())
     
-    for i in range(int(num_of_keys)):
+    for i in range(1, int(num_of_keys) + 1):
         duration = redis.hget(i, "duration")
         if duration == str(15): 
             duration_15_ids.append(i)
@@ -87,7 +87,7 @@ def get_ids_duration_30():
     
     num_of_keys = str(redis.dbsize())
     
-    for i in range(int(num_of_keys)):
+    for i in range(1, int(num_of_keys) + 1):
         duration = redis.hget(i, "duration")
         if duration == str(30): 
             duration_30_ids.append(i)
