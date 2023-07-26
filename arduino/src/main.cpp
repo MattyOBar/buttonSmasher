@@ -480,6 +480,7 @@ void postScoresInFlask() {
 
 //Main loop function
 void loop() {
+
   button1.loop();
   button2.loop();
   button3.loop();
